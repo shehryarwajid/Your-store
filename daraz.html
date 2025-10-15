@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Your Store — Mini Advanced Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4fbf9;
+    --card:#ffffff;
+    --muted:#667085;
+    --accent:#00a86b;
+    --accent-2:#008a59;
+    --glass: rgba(255,255,255,0.75);
+    --shadow: 0 8px 30px rgba(3,120,78,.08);
+  }
+  *{box-sizing:border-box;font-family:Inter,system-ui,Arial;}
+  body{margin:0;background:linear-gradient(180deg,#f7fffb 0%,var(--bg) 100%);color:#082018;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  header{position:sticky;top:0;z-index:90;background:linear-gradient(90deg,#fff,#f3fff8);display:flex;align-items:center;gap:16px;padding:12px 18px;box-shadow:0 6px 24px rgba(2,20,18,.06)}
+  .logo{display:flex;gap:10px;align-items:center}
+  .logo-box{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;background:linear-gradient(135deg,var(--accent),#2ad491);box-shadow:0 8px 18px rgba(3,120,78,.12)}
+  .brand{font-weight:900}
+  .brand small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+  .search{flex:1;display:flex;align-items:center;gap:10px}
+  .search input{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #e7f4ee;background:#fff;outline:none}
+  nav{display:flex;gap:10px;align-items:center}
+  .nav-link{padding:8px 10px;border-radius:10px;color:var(--muted);font-weight:700}
+  .nav-link:hover{background:#f0fff6;color:var(--accent-2)}
+  .cart-btn{display:flex;gap:8px;align-items:center;padding:8px;border-radius:10px;background:var(--card);border:1px solid #eef9f1;cursor:pointer}
+  .cart-count{background:var(--accent);color:#fff;padding:4px 8px;border-radius:999px;font-weight:800;font-size:13px}
+
+  .container{max-width:1180px;margin:22px auto;padding:0 18px}
+  .hero{background:linear-gradient(90deg,#ffffff 0%,#f3fff8 100%);padding:22px;border-radius:14px;display:flex;gap:18px;align-items:center;box-shadow:var(--shadow)}
+  .hero-left{flex:1}
+  .hero h1{margin:0;font-size:28px}
+  .hero p{margin:8px 0;color:var(--muted)}
+  .cta{background:var(--accent);color:#fff;padding:10px 14px;border-radius:12px;border:0;font-weight:800;cursor:pointer}
+  .cats{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .cat{background:#fff;padding:8px 12px;border-radius:999px;border:1px solid #f0f6f2;color:var(--muted);font-weight:700;cursor:pointer}
+
+  .topcontrols{display:flex;gap:12px;align-items:center;margin-top:18px;flex-wrap:wrap}
+  .select, .input{padding:8px 10px;border-radius:10px;border:1px solid #eef7f2;background:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;margin-top:18px}
+  .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 24px rgba(8,16,20,.04);display:flex;flex-direction:column;gap:10px;transition:transform .18s}
+  .card:hover{transform:translateY(-6px)}
+  .img{height:160px;border-radius:10px;background:linear-gradient(135deg,#f8fffb,#eefef6);display:flex;align-items:center;justify-content:center;color:#9aa;font-weight:700}
+  .title{font-weight:800}
+  .meta{color:var(--muted);font-size:13px}
+  .price{color:var(--accent);font-weight:900;font-size:16px}
+  .actions{margin-top:auto;display:flex;gap:8px}
+  .btn{cursor:pointer;padding:8px 10px;border-radius:10px;border:0;font-weight:700}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-ghost{background:#fff;border:1px solid #e9f7f1;color:var(--accent)}
+
+  /* cart drawer */
+  .drawer{position:fixed;right:18px;bottom:18px;background:var(--card);padding:12px;border-radius:12px;box-shadow:0 20px 50px rgba(2,20,18,.14);width:360px;max-height:75vh;overflow:auto;display:none;z-index:80}
+  .drawer h4{margin:0 0 8px 0}
+  .cart-item{display:flex;gap:10px;justify-content:space-between;padding:8px 0;border-bottom:1px dashed #f0f6f2}
+  .qty{display:flex;gap:6px;align-items:center}
+  .checkout-btn{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px;border-radius:10px;border:0;font-weight:900;width:100%;margin-top:10px;cursor:pointer}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(6,10,10,.45);display:none;align-items:center;justify-content:center;z-index:200}
+  .modal{width:720px;background:var(--card);padding:18px;border-radius:12px;box-shadow:0 18px 50px rgba(8,20,18,.3)}
+  .modal .img-lg{height:320px;border-radius:10px;background:linear-gradient(135deg,#f7fff9,#effff7);display:flex;align-items:center;justify-content:center;color:#9aa}
+
+  /* footer */
+  footer{margin-top:28px;background:linear-gradient(180deg,#f3fff8,#ffffff);padding:20px;border-top:1px solid #e8f6ee;color:var(--muted)}
+  .footer-grid{max-width:1180px;margin:0 auto;display:flex;gap:24px;padding:0 18px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+
+  /* panels */
+  .panel{background:#fff;padding:14px;border-radius:10px;border:1px solid #eef9f1}
+  .cols{display:grid;grid-template-columns:1fr 320px;gap:18px}
+
+  /* seller/admin forms */
+  .form-row{display:flex;gap:8px;align-items:center}
+  input[type=file]{padding:6px}
+
+  /* responsive */
+  @media (max-width:900px){
+    .cols{grid-template-columns:1fr}
+    .modal{width:92%}
+    .drawer{width:92%;right:4%}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" aria-hidden="false">
+    <div class="logo-box" title="Your Store">YS</div>
+    <div>
+      <div class="brand">Your Store</div>
+      <small>Shop fast • Easypaisa on Delivery</small>
+    </div>
+  </div>
+
+  <div class="search" role="search">
+    <input id="search" placeholder="Search products, categories, brands..." />
+  </div>
+
+  <nav>
+    <div class="nav-link" id="nav-home">Home</div>
+    <div class="nav-link" id="nav-seller">Seller</div>
+    <div class="nav-link" id="nav-orders">My Orders</div>
+    <div class="cart-btn" id="open-cart" title="Open cart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M3 3h2l.4 2M7 13h10l4-8H5.4" stroke="#0b1220" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div style="font-weight:800">Cart</div>
+      <div class="cart-count" id="cart-count">0</div>
+    </div>
+  </nav>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div class="hero-left">
+      <h1>Welcome to <span style="color:var(--accent)">Your Store</span></h1>
+      <p>Daraz-style marketplace demo — now advanced. Seller panel, image uploads, order tracking and <strong>Easypaisa on Delivery</strong> (simulated).</p>
+      <div style="margin-top:12px">
+        <button class="cta" onclick="document.getElementById('search').focus()">Start shopping</button>
+      </div>
+      <div class="cats" id="category-list" style="margin-top:12px"></div>
+    </div>
+    <div style="width:260px;height:120px;border-radius:12px;background:linear-gradient(135deg,#e6fff3,#d6fff0);display:flex;align-items:center;justify-content:center;color:var(--accent-2);font-weight:800;box-shadow:0 8px 24px rgba(3,120,78,.06)">
+      FAST • EASY PAY
+    </div>
+  </section>
+
+  <div class="topcontrols">
+    <select id="filter-cat" class="select">
+      <option value="">All categories</option>
+    </select>
+    <select id="sort" class="select">
+      <option value="new">Sort: Newest</option>
+      <option value="price-asc">Price ↑</option>
+      <option value="price-desc">Price ↓</option>
+      <option value="alpha">Name A→Z</option>
+    </select>
+    <input id="min-price" class="input" placeholder="Min price" style="width:110px"/>
+    <input id="max-price" class="input" placeholder="Max price" style="width:110px"/>
+    <button id="apply-filters" class="btn btn-ghost">Apply</button>
+    <div style="margin-left:auto;color:var(--muted)">Tip: Press <strong>c</strong> to open cart</div>
+  </div>
+
+  <div style="margin-top:12px" class="cols">
+    <div>
+      <h2>Products</h2>
+      <div id="product-grid" class="grid" aria-live="polite"></div>
+    </div>
+
+    <aside>
+      <div class="panel">
+        <h4>Your Cart</h4>
+        <div id="mini-cart-contents" style="min-height:120px"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-weight:800">
+          <div>Subtotal</div><div id="mini-subtotal">Rs 0</div>
+        </div>
+        <button id="goto-checkout" class="checkout-btn" style="margin-top:10px">Proceed to Checkout</button>
+        <div style="margin-top:12px;font-size:13px;color:var(--muted)">Easypaisa on Delivery available at checkout (simulated — courier collects at delivery).</div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="panel" style="margin-top:12px">
+        <h4>Quick Actions</h4>
+        <button id="seed-products" class="btn btn-ghost" style="width:100%;margin-top:8px">Seed sample products</button>
+        <button id="clear-data" class="btn btn-ghost" style="width:100%;margin-top:8px">Clear local data</button>
+        <div style="margin-top:8px;font-size:13px;color:var(--muted)">Use seller panel to add products and admin panel to manage orders.</div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="panel" style="margin-top:12px">
+        <h4>Admin</h4>
+        <div style="display:flex;gap:8px">
+          <button id="nav-admin" class="btn btn-ghost" style="flex:1">Open Admin</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<!-- Drawer Cart -->
+<div id="drawer" class="drawer" aria-hidden="true">
+  <h4>Cart (<span id="drawer-count">0</span>)</h4>
+  <div id="drawer-items"></div>
+  <div style="display:flex;justify-content:space-between;padding-top:10px;font-weight:800">
+    <div>Subtotal</div><div id="drawer-subtotal">Rs 0</div>
+  </div>
+  <button id="drawer-checkout" class="checkout-btn">Checkout</button>
+</div>
+
+<!-- Product Modal -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div style="display:flex;gap:18px">
+      <div style="flex:1">
+        <div id="modal-img" class="img-lg"></div>
+      </div>
+      <div style="width:320px">
+        <h3 id="modal-title"></h3>
+        <div id="modal-desc" class="small" style="color:var(--muted);margin-bottom:8px"></div>
+        <div class="price" id="modal-price"></div>
+        <div style="margin-top:12px"><label>Qty</label><input id="modal-qty" type="number" value="1" min="1" style="width:80px;padding:8px;border-radius:8px;border:1px solid #eef7f2"/></div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button id="modal-add" class="btn btn-primary">Add to cart</button>
+          <button id="modal-close" class="btn btn-ghost">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout Modal (full) -->
+<div id="overlay-checkout" class="overlay" aria-hidden="true">
+  <div class="modal" role="dialog">
+    <h3>Checkout</h3>
+    <div id="checkout-summary" style="color:var(--muted);margin-bottom:10px"></div>
+
+    <div style="margin-top:8px">
+      <label style="font-weight:700">Shipping address</label>
+      <input id="checkout-address" placeholder="House #, Street, City" />
+    </div>
+
+    <div style="margin-top:12px">
+      <label style="font-weight:700">Payment method</label>
+      <div id="payment-options" style="margin-top:6px;display:flex;flex-direction:column;gap:8px">
+        <label class="payment" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="radio" name="pay" value="cod" checked/> <strong>Cash on Delivery</strong> <span style="margin-left:auto;color:var(--muted)">Pay cash when delivered</span></label>
+        <label class="payment" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="radio" name="pay" value="card" /> <strong>Card (simulated)</strong> <span style="margin-left:auto;color:var(--muted)">Enter card on next step (demo)</span></label>
+        <label class="payment" style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="radio" name="pay" value="easypaisa" /> <strong>Easypaisa on Delivery</strong> <span style="margin-left:auto;color:var(--muted)">Courier collects payment and confirms via Easypaisa</span></label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button id="place-order" class="checkout-btn" style="flex:1">Place Order</button>
+      <button id="checkout-cancel" class="btn btn-ghost">Cancel</button>
+    </div>
+
+    <div id="checkout-note" style="margin-top:10px;color:var(--muted);font-size:13px"></div>
+  </div>
+</div>
+
+<!-- Seller panel -->
+<div id="seller-panel" class="overlay" aria-hidden="true">
+  <div class="modal" role="dialog">
+    <h3>Seller — Add product</h3>
+    <form id="seller-form">
+      <div style="display:flex;gap:8px">
+        <input id="s-title" placeholder="Product title" required />
+        <input id="s-price" placeholder="Price" required />
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <input id="s-cat" placeholder="Category" />
+        <input id="s-img" type="file" accept="image/*" />
+      </div>
+      <textarea id="s-desc" placeholder="Short description" style="margin-top:8px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-primary" type="submit">Add product</button>
+        <button id="seller-close" class="btn btn-ghost" type="button">Close</button>
+      </div>
+    </form>
+
+    <hr style="margin:12px 0"/>
+    <h4>Your products (local)</h4>
+    <div id="seller-products" style="max-height:200px;overflow:auto"></div>
+  </div>
+</div>
+
+<!-- Orders / Admin panel -->
+<div id="orders-panel" class="overlay" aria-hidden="true">
+  <div class="modal" role="dialog" style="width:900px">
+    <h3>Orders / Admin</h3>
+    <div style="display:flex;gap:12px;margin-top:8px">
+      <div style="flex:1">
+        <h4>All Orders</h4>
+        <div id="orders-list" style="max-height:360px;overflow:auto"></div>
+      </div>
+      <div style="width:320px">
+        <h4>Order details</h4>
+        <div id="order-detail"></div>
+        <div style="margin-top:8px;display:flex;gap:8px">
+          <button id="mark-paid" class="btn btn-primary" style="flex:1">Mark Paid (simulate)</button>
+          <button id="od-close" class="btn btn-ghost" style="flex:1">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div style="font-weight:900;color:var(--accent)">Your Store</div>
+      <div style="color:var(--muted)">Advanced demo • Easypaisa on Delivery simulated</div>
+    </div>
+    <div>
+      <div style="font-weight:800">Support</div>
+      <div style="color:var(--muted);margin-top:8px">help@yourstore.demo</div>
+    </div>
+    <div>
+      <div style="font-weight:800">Legal</div>
+      <div style="color:var(--muted);margin-top:8px">Demo only — not for production</div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:12px;color:var(--muted)">© <span id="year"></span> Your Store — Demo</div>
+</footer>
+
+<script>
+/* ====== Utilities & localStorage model ======
+Data models stored in localStorage:
+- products: array of product objects {id,title,price,category,description,image(dataURL),created}
+- cart: object mapping productId -> {id,title,price,qty}
+- orders: array of orders {id,items[],address,total,payment,status,created}
+*/
+const LS = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)) } catch(e){ return null } },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+};
+
+if(!LS.get('products')) LS.set('products', []); // ensure key
+if(!LS.get('orders')) LS.set('orders', []);
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const uid = ()=> Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+document.getElementById('year').textContent = new Date().getFullYear();
+
+/* ====== Initial sample products (if none) ====== */
+const sampleProducts = [
+  { title:"Wireless Earbuds", price:1999, category:"Electronics", description:"Comfortable wireless earbuds with 12h battery.", image:null },
+  { title:"Casual Sneakers", price:3499, category:"Fashion", description:"Daily wear sneakers, breathable fabric.", image:null },
+  { title:"Smartphone 6.5\" 128GB", price:42999, category:"Electronics", description:"Fast processor, long battery.", image:null },
+  { title:"Ceramic Mug — 350ml", price:499, category:"Home", description:"Minimal mug for your coffee.", image:null },
+  { title:"Makeup Kit (5pcs)", price:1299, category:"Beauty", description:"Compact makeup set.", image:null },
+  { title:"Kids Backpack", price:899, category:"Kids", description:"Durable backpack for school.", image:null }
+];
+
+function seedIfEmpty(){
+  const products = LS.get('products') || [];
+  if(products.length === 0){
+    const seeded = sampleProducts.map((p,i)=> ({ id: uid(), title:p.title, price:p.price, category:p.category, description:p.description, image:null, created: Date.now()-i*1000 }));
+    LS.set('products', seeded);
+    renderAll();
+    alert('Sample products added');
+  } else alert('Products already exist');
+}
+
+/* ====== Product rendering & filters ====== */
+function loadProducts(){
+  return LS.get('products') || [];
+}
+function saveProducts(list){ LS.set('products', list); }
+
+function getCategories(){
+  const prod = loadProducts();
+  const s = new Set(prod.map(p=>p.category || 'General'));
+  return Array.from(s).sort();
+}
+
+function renderCategories(){
+  const list = getCategories();
+  const catContainer = $('#category-list');
+  catContainer.innerHTML = '';
+  ['All', ...list].forEach(c=>{
+    const el = document.createElement('div'); el.className='cat'; el.textContent = c; el.onclick = ()=>{ $('#filter-cat').value = c === 'All' ? '' : c; applyFilters(); };
+    catContainer.appendChild(el);
+  });
+  // fill select
+  const sel = $('#filter-cat');
+  sel.innerHTML = '<option value=\"\">All categories</option>' + getCategories().map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function renderProducts(){
+  const grid = $('#product-grid'); grid.innerHTML = '';
+  let products = loadProducts();
+  // search & filters
+  const q = $('#search').value.trim().toLowerCase();
+  if(q) products = products.filter(p => (p.title + ' ' + (p.category||'') + ' ' + (p.description||'')).toLowerCase().includes(q));
+  const cat = $('#filter-cat').value;
+  if(cat) products = products.filter(p => (p.category||'') === cat);
+  const min = parseInt($('#min-price').value) || 0;
+  const max = parseInt($('#max-price').value) || 0;
+  if(min) products = products.filter(p => p.price >= min);
+  if(max) products = products.filter(p => p.price <= max);
+  // sorting
+  const sort = $('#sort').value;
+  if(sort === 'price-asc') products.sort((a,b)=>a.price-b.price);
+  else if(sort === 'price-desc') products.sort((a,b)=>b.price-a.price);
+  else if(sort === 'alpha') products.sort((a,b)=>a.title.localeCompare(b.title));
+  else products.sort((a,b)=> (b.created||0) - (a.created||0));
+
+  if(products.length === 0){ grid.innerHTML = '<div style=\"padding:18px;background:#fff;border-radius:10px\">No products found</div>'; return; }
+
+  products.forEach(p=>{
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="img" data-id="${p.id}" style="overflow:hidden;cursor:pointer">${ p.image ? `<img src="${p.image}" alt="" style="width:100%;height:100%;object-fit:cover">` : '<div style="font-weight:800;color:#cfefe0">Image</div>' }</div>
+      <div class="title">${escapeHtml(p.title)}</div>
+      <div class="meta">${escapeHtml(p.category||'')}</div>
+      <div class="price">Rs ${numberWithCommas(p.price)}</div>
+      <div class="actions">
+        <button class="btn btn-primary add" data-id="${p.id}">Add to cart</button>
+        <button class="btn btn-ghost view" data-id="${p.id}">View</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ====== Helpers for numbers & escaping ====== */
+function numberWithCommas(x){ return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ====== Product modal (view) ====== */
+let currentModalProduct = null;
+function openProductModal(id){
+  const p = loadProducts().find(x=>x.id===id);
+  if(!p) return;
+  currentModalProduct = p;
+  $('#modal-title').textContent = p.title;
+  $('#modal-desc').textContent = p.description || '';
+  $('#modal-price').textContent = 'Rs ' + numberWithCommas(p.price);
+  $('#modal-qty').value = 1;
+  const c = $('#modal-img');
+  c.innerHTML = p.image ? `<img src="${p.image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">` : '<div style="color:#9aa;font-weight:800">No image</div>';
+  $('#overlay').style.display = 'flex';
+  $('#overlay').setAttribute('aria-hidden','false');
+}
+
+$('#modal-close').onclick = ()=> closeOverlay();
+$('#overlay').addEventListener('click', e => { if(e.target === $('#overlay')) closeOverlay(); });
+function closeOverlay(){ $('#overlay').style.display = 'none'; $('#overlay').setAttribute('aria-hidden','true'); currentModalProduct = null; }
+
+/* ====== Cart (localStorage) ====== */
+function loadCart(){ return LS.get('cart') || {}; }
+function saveCart(cart){ LS.set('cart', cart); updateCartUI(); }
+
+function addToCartProduct(pid, qty=1){
+  const p = loadProducts().find(x=>x.id===pid); if(!p) return alert('Product not found');
+  const cart = loadCart();
+  if(cart[pid]) cart[pid].qty += qty; else cart[pid] = { id: p.id, title: p.title, price: p.price, qty };
+  saveCart(cart);
+  showDrawer();
+}
+
+function updateCartUI(){
+  const cart = loadCart();
+  const keys = Object.keys(cart);
+  const mini = $('#mini-cart-contents'); mini.innerHTML = '';
+  let subtotal = 0, count = 0;
+  if(keys.length === 0) mini.innerHTML = '<div>Your cart is empty</div>';
+  else keys.forEach(k=>{
+    const it = cart[k];
+    subtotal += it.price * it.qty; count += it.qty;
+    const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.padding='6px 0';
+    row.innerHTML = `<div style="max-width:70%"><strong>${escapeHtml(it.title)}</strong><div style="font-size:13px;color:var(--muted)">Rs ${numberWithCommas(it.price)} x ${it.qty}</div></div><div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end"><div>Rs ${numberWithCommas(it.price*it.qty)}</div><div class="qty"><button class="small-btn" data-op="dec" data-id="${it.id}">−</button><button class="small-btn" data-op="inc" data-id="${it.id}">+</button></div></div>`;
+    mini.appendChild(row);
+  });
+  $('#mini-subtotal').textContent = 'Rs ' + numberWithCommas(subtotal);
+  $('#cart-count').textContent = count;
+  $('#drawer-count').textContent = count;
+  $('#drawer-subtotal').textContent = 'Rs ' + numberWithCommas(subtotal);
+  $('#cart-count').dataset.count = count;
+  // drawer list
+  const di = $('#drawer-items'); di.innerHTML = ''; keys.forEach(k=>{
+    const it = cart[k];
+    const el = document.createElement('div'); el.className='cart-item';
+    el.innerHTML = `<div style="max-width:70%"><strong>${escapeHtml(it.title)}</strong><div style="font-size:13px;color:var(--muted)">Rs ${numberWithCommas(it.price)} x ${it.qty}</div></div><div style="text-align:right"><div>Rs ${numberWithCommas(it.price*it.qty)}</div><div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end"><button class="small-btn" data-op="dec" data-id="${it.id}">−</button><button class="small-btn" data-op="inc" data-id="${it.id}">+</button></div></div>`;
+    di.appendChild(el);
+  });
+}
+
+// small qty buttons
+document.addEventListener('click', e=>{
+  if(e.target.matches('.small-btn')){
+    const id = e.target.dataset.id; const op = e.target.dataset.op;
+    const cart = loadCart();
+    if(!cart[id]) return;
+    if(op === 'inc') cart[id].qty++;
+    else { cart[id].qty--; if(cart[id].qty <= 0) delete cart[id]; }
+    saveCart(cart);
+  }
+});
+
+// open drawer
+function showDrawer(){ $('#drawer').style.display = 'block'; $('#drawer').setAttribute('aria-hidden','false'); }
+$('#open-cart').addEventListener('click', showDrawer);
+
+// close drawer when click outside
+document.addEventListener('click', e=>{
+  if($('#drawer').contains(e.target) || e.target === $('#open-cart') || $('#open-cart').contains(e.target)) return;
+  if($('#drawer').style.display === 'block') {
+    // don't auto-hide on clicks inside; but here if clicked outside, hide
+    $('#drawer').style.display = 'none';
+    $('#drawer').setAttribute('aria-hidden','true');
+  }
+});
+
+// keyboard shortcut c to open cart
+document.addEventListener('keydown', e=>{ if(e.key.toLowerCase()==='c') showDrawer(); });
+
+/* ====== Product click handlers (delegation) ====== */
+document.addEventListener('click', e=>{
+  if(e.target.matches('.add')){ const id = e.target.dataset.id; addToCartProduct(id,1); }
+  if(e.target.matches('.view')){ const id = e.target.dataset.id; openProductModal(id); }
+  if(e.target.closest('.img') && e.target.closest('.img').dataset?.id){ openProductModal(e.target.closest('.img').dataset.id); }
+});
+
+/* modal add */
+$('#modal-add').addEventListener('click', ()=>{
+  if(!currentModalProduct) return;
+  const qty = parseInt($('#modal-qty').value) || 1;
+  addToCartProduct(currentModalProduct.id, qty);
+  closeOverlay();
+});
+
+/* ====== Checkout flow ====== */
+$('#drawer-checkout').addEventListener('click', ()=> openCheckout());
+$('#goto-checkout').addEventListener('click', ()=> openCheckout());
+
+function openCheckout(){
+  const cart = loadCart();
+  if(Object.keys(cart).length === 0) return alert('Cart is empty');
+  // summary
+  let total = 0, count = 0;
+  Object.keys(cart).forEach(k=>{ total += cart[k].price * cart[k].qty; count += cart[k].qty; });
+  $('#checkout-summary').textContent = `You have ${count} items — Subtotal: Rs ${numberWithCommas(total)}`;
+  $('#checkout-address').value = localStorage.getItem('lastAddress') || '';
+  $('#checkout-note').textContent = '';
+  $('#overlay-checkout').style.display = 'flex'; $('#overlay-checkout').setAttribute('aria-hidden','false');
+}
+
+/* place order */
+$('#place-order').addEventListener('click', ()=>{
+  const addr = $('#checkout-address').value.trim();
+  if(!addr) return alert('Enter shipping address');
+  const pay = document.querySelector('input[name="pay"]:checked').value;
+  const cart = loadCart();
+  const items = Object.keys(cart).map(k=>cart[k]);
+  let total = 0; items.forEach(i=> total += i.price * i.qty);
+  // create order
+  const orders = LS.get('orders') || [];
+  const orderId = uid();
+  const status = pay === 'card' ? 'paid' : (pay === 'easypaisa' ? 'pending_payment' : 'pending_cod');
+  const order = { id: orderId, items, address: addr, total, payment: pay, status, created: Date.now() };
+  orders.unshift(order); LS.set('orders', orders);
+  // clear cart
+  LS.set('cart', {});
+  localStorage.setItem('lastAddress', addr);
+  updateCartUI();
+  $('#overlay-checkout').style.display = 'none'; $('#overlay-checkout').setAttribute('aria-hidden','true');
+  alert('Order placed! Order ID: ' + orderId + '\\nPayment method: ' + pay + '\\nStatus: ' + status);
+});
+
+/* cancel checkout */
+$('#checkout-cancel').addEventListener('click', ()=> { $('#overlay-checkout').style.display='none'; $('#overlay-checkout').setAttribute('aria-hidden','true'); });
+
+/* ====== Seller panel (localStorage image upload) ====== */
+$('#nav-seller').addEventListener('click', ()=> { openSeller(); });
+$('#nav-home').addEventListener('click', ()=> { window.scrollTo({ top: 0, behavior:'smooth' }); renderAll(); });
+$('#nav-orders').addEventListener('click', ()=> { openOrdersPanel(); });
+$('#nav-admin').addEventListener('click', ()=> { openOrdersPanel(true); });
+
+function openSeller(){
+  $('#seller-panel').style.display = 'flex'; $('#seller-panel').setAttribute('aria-hidden','false');
+  renderSellerProducts();
+}
+$('#seller-close').addEventListener('click', ()=> { $('#seller-panel').style.display='none'; $('#seller-panel').setAttribute('aria-hidden','true'); });
+
+$('#seller-form').addEventListener('submit', async (e)=> {
+  e.preventDefault();
+  const title = $('#s-title').value.trim();
+  const price = parseInt($('#s-price').value) || 0;
+  const cat = $('#s-cat').value.trim() || 'General';
+  const desc = $('#s-desc').value.trim();
+  const file = $('#s-img').files[0];
+  let dataURL = null;
+  if(file){
+    dataURL = await readFileAsDataURL(file);
+  }
+  const products = loadProducts();
+  const newp = { id: uid(), title, price, category: cat, description: desc, image: dataURL, created: Date.now() };
+  products.unshift(newp); saveProducts(products);
+  $('#s-title').value = ''; $('#s-price').value=''; $('#s-cat').value=''; $('#s-desc').value=''; $('#s-img').value='';
+  renderAll();
+  renderSellerProducts();
+  alert('Product added locally');
+});
+
+function renderSellerProducts(){
+  const container = $('#seller-products'); container.innerHTML = '';
+  const products = loadProducts();
+  products.forEach(p=>{
+    const el = document.createElement('div'); el.style.padding='8px 0'; el.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><div style="width:64px;height:48px;background:#f0fff6;border-radius:6px;overflow:hidden">${ p.image ? `<img src="${p.image}" style="width:100%;height:100%;object-fit:cover">` : '' }</div><div style="flex:1"><strong>${escapeHtml(p.title)}</strong><div style="color:var(--muted);font-size:13px">Rs ${numberWithCommas(p.price)} • ${escapeHtml(p.category||'')}</div></div><div><button class="btn btn-ghost" data-id="${p.id}" data-op="delete">Delete</button></div></div>`;
+    container.appendChild(el);
+  });
+}
+
+/* delete product */
+$('#seller-products').addEventListener('click', e=>{
+  if(e.target.dataset.op === 'delete'){
+    const id = e.target.dataset.id;
+    if(confirm('Delete this product?')){ const products = loadProducts().filter(p=>p.id!==id); saveProducts(products); renderAll(); renderSellerProducts(); }
+  }
+});
+
+/* read file as dataURL */
+function readFileAsDataURL(file){ return new Promise((res,rej)=>{ const fr = new FileReader(); fr.onload = ()=> res(fr.result); fr.onerror = rej; fr.readAsDataURL(file); }); }
+
+/* ====== Orders & Admin panel ====== */
+function openOrdersPanel(admin=false){
+  $('#orders-panel').style.display = 'flex'; $('#orders-panel').setAttribute('aria-hidden','false');
+  renderOrdersList();
+  // if admin open default first order details
+}
+
+$('#od-close').addEventListener('click', ()=> { $('#orders-panel').style.display='none'; $('#orders-panel').setAttribute('aria-hidden','true'); });
+
+function renderOrdersList(){
+  const container = $('#orders-list'); container.innerHTML = '';
+  const orders = LS.get('orders') || [];
+  if(orders.length === 0){ container.innerHTML = '<div>No orders yet</div>'; return; }
+  orders.forEach(o=>{
+    const el = document.createElement('div'); el.style.borderBottom='1px solid #eef7f2'; el.style.padding='8px'; el.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><div style="flex:1"><strong>Order #${o.id}</strong><div style="color:var(--muted);font-size:13px">Rs ${numberWithCommas(o.total)} • ${o.payment} • ${o.status}</div></div><div><button class="btn btn-ghost" data-id="${o.id}" data-op="view">View</button></div></div>`;
+    container.appendChild(el);
+  });
+}
+
+$('#orders-list').addEventListener('click', e=>{
+  if(e.target.dataset.op === 'view'){
+    const id = e.target.dataset.id;
+    const o = (LS.get('orders')||[]).find(x=>x.id === id);
+    showOrderDetail(o);
+  }
+});
+
+function showOrderDetail(o){
+  const d = $('#order-detail'); d.innerHTML = '';
+  if(!o) return d.innerHTML = '<div>Select an order</div>';
+  d.innerHTML = `<div><strong>Order #${o.id}</strong></div><div style="color:var(--muted);font-size:13px;margin-top:6px">Payment: ${o.payment}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">Status: ${o.status}</div><div style="margin-top:10px"><strong>Items</strong></div>`;
+  o.items.forEach(it=>{
+    const row = document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.padding='6px 0';
+    row.innerHTML = `<div>${escapeHtml(it.title)} x ${it.qty}</div><div>Rs ${numberWithCommas(it.price*it.qty)}</div>`;
+    d.appendChild(row);
+  });
+  d.innerHTML += `<div style="margin-top:10px"><strong>Ship to</strong><div style="color:var(--muted)">${escapeHtml(o.address)}</div></div>`;
+  // attach to mark-paid button
+  $('#mark-paid').dataset.id = o.id;
+}
+
+$('#mark-paid').addEventListener('click', ()=>{
+  const id = $('#mark-paid').dataset.id;
+  if(!id) return alert('Select an order first');
+  const orders = LS.get('orders') || [];
+  const idx = orders.findIndex(x=>x.id === id);
+  if(idx === -1) return alert('Order not found');
+  orders[idx].status = 'paid';
+  LS.set('orders', orders);
+  renderOrdersList();
+  showOrderDetail(orders[idx]);
+  alert('Order marked as paid (simulated Easypaisa webhook)');
+});
+
+/* ====== Misc actions ====== */
+$('#seed-products').addEventListener('click', ()=> seedIfEmpty());
+$('#clear-data').addEventListener('click', ()=> { if(confirm('Clear all local data (products, cart, orders)?')){ localStorage.clear(); location.reload(); } });
+
+/* ====== Filters apply button ====== */
+$('#apply-filters').addEventListener('click', ()=> applyFilters());
+function applyFilters(){ renderCategories(); renderProducts(); }
+
+/* ====== Rendering all on start ====== */
+function renderAll(){
+  renderCategories(); renderProducts(); updateCartUI(); renderSellerProducts(); renderOrdersList();
+}
+renderAll();
+
+/* ====== Helpers: click outside overlays to close (some) ====== */
+$('#seller-panel').addEventListener('click', e => { if(e.target === $('#seller-panel')) { $('#seller-panel').style.display='none'; $('#seller-panel').setAttribute('aria-hidden','true'); }});
+$('#orders-panel').addEventListener('click', e => { if(e.target === $('#orders-panel')) { $('#orders-panel').style.display='none'; $('#orders-panel').setAttribute('aria-hidden','true'); }});
+$('#overlay-checkout').addEventListener('click', e => { if(e.target === $('#overlay-checkout')) { $('#overlay-checkout').style.display='none'; $('#overlay-checkout').setAttribute('aria-hidden','true'); }});
+
+/* ====== Small UX: search debounce ====== */
+let searchTimer = null;
+$('#search').addEventListener('input', ()=> { clearTimeout(searchTimer); searchTimer = setTimeout(()=> renderProducts(), 250); });
+
+/* ====== Initial seeding if truly empty ====== */
+if((LS.get('products')||[]).length === 0) seedIfEmpty();
+
+/* ====== End ====== */
+</script>
+</body>
+</html>
